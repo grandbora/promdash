@@ -10,46 +10,44 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
       return parseFloat(label, 10) * 100 + "%";
     }
     function toInt(label) {
-      return parseInt(label, 10) * 100;
+      return parseInt(label*100, 10);
     }
 
     var vars = str.match(re);
     if (!vars) {
       return str;
     }
+    vars = vars[0]
 
+    // deal with filtered variables
     var pipedVars = [];
-    vars.map(function(v) {
-      var match = v.match(re2)
-      if (match) {
-        pipedVars = pipedVars.concat(match)
-      }
-    });
+    var filteredMatches = vars.match(re2)
+    if (filteredMatches) {
+      pipedVars = pipedVars.concat(filteredMatches)
+    }
 
     var pipeObj = {};
     if (pipedVars.length) {
-      // put in keys so we can replace by them later
-      // replace with Object.keys(pipedVars)
       pipedVars.forEach(function(v) { pipeObj[v] = null; });
       var newStr = str
       pipedVars.forEach(function(match) {
         var rep = match.replace(/\s+/g, '').replace(/{|}/g, '').match(/\s?(\w+)|(\w+)\s?/g)
-        // getting double matches???
         eval("var fn = " + rep[1]);
-        // set the value on the key in the pipe obj to the evaluation of the
-        // filter function
         pipeObj[match] = fn(varValues[rep[0]])
       });
-      // have to know that there is a pipe to diverge the matching path
     }
 
+    // replace the filtered variables
     for (var i in pipeObj) {
       str = str.replace(i, pipeObj[i])
     }
-    for (var i = 0; i < vars.length; i++) {
-      str = str.replace(vars[i], varValues[vars[i].replace(/{|}/g, '')]);
+    // end filtered variables
+
+    // replace the single variables
+    var singleMatches = vars.match(re1)
+    for (var i = 0; i < singleMatches.length; i++) {
+      str = str.replace(singleMatches[i], varValues[singleMatches[i].replace(/{|}/g, '')]);
     }
-    debugger
     return str;
   };
 });
