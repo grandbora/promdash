@@ -16,7 +16,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           if (!scope.graphSettings.legendFormatString) {
             return;
           }
-          s.name = VariableInterpolator(scope.graphSettings.legendFormatString, s.labels);
+          s.name = VariableInterpolator(scope.graphSettings.legendFormatString, s.labels, scope);
         });
       }
 

@@ -1,16 +1,9 @@
 angular.module("Prometheus.services").factory('VariableInterpolator', function() {
   var re = /{{.+}}/g;
   var re1 = /{{\s?(\w+)\s?}}/g;
-  var re2 = /{{\s?\w+\s?(\|\s?\w+\s?}})/g;
+  var re2 = /{{\s?\w+\s?\|\s?\w+\s?}}/g;
 
-  return function(str, varValues) {
-    function toPercent(label) {
-      return parseFloat(label, 10) * 100 + "%";
-    }
-    function toInt(label) {
-      return parseInt(label*100, 10);
-    }
-
+  return function(str, varValues, scope) {
     var vars = str.match(re);
     if (!vars) {
       return str;
@@ -25,14 +18,18 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     }
 
     var pipeObj = {};
-    if (pipedVars.length) {
+    if (scope && pipedVars.length) {
       pipedVars.forEach(function(v) { pipeObj[v] = null; });
       var newStr = str
       pipedVars.forEach(function(match) {
         var rep = match.replace(/\s+/g, '').replace(/{|}/g, '').match(/\s?(\w+)|(\w+)\s?/g)
-        // catch when rep[1] isn't a function
-        eval("var fn = " + rep[1]);
-        pipeObj[match] = fn(varValues[rep[0]])
+
+        // set on scope so we can $eval
+        scope[rep[0]] = varValues[rep[0]]
+        var out = scope.$eval(rep.join("|"))
+        pipeObj[match] = out
+        // cleanup...
+        scope[rep[0]] = undefined
       });
     }
 
@@ -51,3 +48,4 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     return str;
   };
 });
+
