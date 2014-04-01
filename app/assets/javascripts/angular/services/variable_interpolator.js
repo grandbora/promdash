@@ -2,8 +2,6 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
   var re = /{{.+}}/g;
   var re1 = /{{\s?(\w+)\s?}}/g;
   var re2 = /{{\s?\w+\s?(\|\s?\w+\s?}})/g;
-  //save me
-  //{{\s?\w+\s?(\|\s?\w+\s?}})
 
   return function(str, varValues) {
     function toPercent(label) {
@@ -19,7 +17,7 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     }
     vars = vars[0]
 
-    // deal with filtered variables
+    // Deal with filtered variables.
     var pipedVars = [];
     var filteredMatches = vars.match(re2)
     if (filteredMatches) {
@@ -37,13 +35,12 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
       });
     }
 
-    // replace the filtered variables
+    // Replace the filtered variables.
     for (var i in pipeObj) {
       str = str.replace(i, pipeObj[i])
     }
-    // end filtered variables
 
-    // replace the single variables
+    // Replace the single variables.
     var singleMatches = vars.match(re1)
     if ((singleMatches || []).length) {
       for (var i = 0; i < singleMatches.length; i++) {
