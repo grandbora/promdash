@@ -23,4 +23,9 @@ describe('VariableInterpolator', function() {
     var formatStr = "{{name}}: {{non_existent}}";
     expect(variableInterpolator(formatStr, this.availableFields)).toEqual("field name: undefined");
   });
+
+  it("applies the filter function", function() {
+    var formatStr = "{{quantile | toPercent}}";
+    expect(variableInterpolator(formatStr, this.availableFields)).toEqual("75%");
+  });
 });
