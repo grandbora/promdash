@@ -28,4 +28,9 @@ describe('VariableInterpolator', function() {
     var formatStr = "{{quantile | toPercent}}";
     expect(variableInterpolator(formatStr, this.availableFields)).toEqual("75%");
   });
+
+  it("filter function and single interpolation play nice", function() {
+    var formatStr = "{{quantile | toPercent}} for {{server}}";
+    expect(variableInterpolator(formatStr, this.availableFields)).toEqual("75% for localhost:8080");
+  });
 });
