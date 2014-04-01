@@ -30,6 +30,7 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
       var newStr = str
       pipedVars.forEach(function(match) {
         var rep = match.replace(/\s+/g, '').replace(/{|}/g, '').match(/\s?(\w+)|(\w+)\s?/g)
+        // catch when rep[1] isn't a function
         eval("var fn = " + rep[1]);
         pipeObj[match] = fn(varValues[rep[0]])
       });
