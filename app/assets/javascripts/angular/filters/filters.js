@@ -17,3 +17,9 @@ angular.module("Prometheus.filters").filter('hostname', function() {
     return a.host;
   }
 });
+
+angular.module("Prometheus.filters").filter('regex', function() {
+  return function(input, regex, replace) {
+    return input.replace(new RegExp(regex, "g"), replace);
+  }
+});
