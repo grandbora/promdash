@@ -14,41 +14,40 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     if (!vars) {
       return str;
     }
-    vars = vars[0]
+    vars = vars[0];
 
     // Deal with filtered variables.
     var pipedVars = [];
-    var filteredMatches = vars.match(re2)
+    var filteredMatches = vars.match(re2);
     if (filteredMatches) {
-      pipedVars = pipedVars.concat(filteredMatches)
+      pipedVars = pipedVars.concat(filteredMatches);
     }
 
     var pipeObj = {};
     if (scope && pipedVars.length) {
       pipedVars.forEach(function(v) { pipeObj[v] = null; });
-      var newStr = str
       pipedVars.forEach(function(match) {
-        var rep = match.replace(/\s+/g, '').replace(/{|}/g, '').split("|")
+        var rep = match.replace(/\s+/g, '').replace(/{|}/g, '').split("|");
 
         // Set on scope so we can $eval.
         scope[rep[0]] = varValues[rep[0]]
         // check to see if rep[1] is in list of function
         if (knownFilters().indexOf(rep[1].split(":")[0]) > -1) {
-          var result = scope.$eval(rep.join("|"))
-          pipeObj[match] = result
+          var result = scope.$eval(rep.join("|"));
+          pipeObj[match] = result;
           // Remove from scope.
-          scope[rep[0]] = undefined
+          scope[rep[0]] = undefined;
         }
       });
     }
 
     // Replace the filtered variables.
     for (var i in pipeObj) {
-      str = str.replace(i, pipeObj[i])
+      str = str.replace(i, pipeObj[i]);
     }
 
     // Replace the single variables.
-    var singleMatches = vars.match(re1)
+    var singleMatches = vars.match(re1);
     if ((singleMatches || []).length) {
       for (var i = 0; i < singleMatches.length; i++) {
         str = str.replace(singleMatches[i], varValues[singleMatches[i].replace(/{|}/g, '')]);
