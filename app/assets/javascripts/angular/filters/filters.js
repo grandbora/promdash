@@ -4,12 +4,6 @@ angular.module("Prometheus.filters").filter('toPercent', function() {
   }
 });
 
-angular.module("Prometheus.filters").filter('toInt', function() {
-  return function(input) {
-    return parseInt(input*100, 10);
-  }
-});
-
 angular.module("Prometheus.filters").filter('hostname', function() {
   return function(input) {
     var a = document.createElement("a");
