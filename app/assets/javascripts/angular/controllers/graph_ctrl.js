@@ -16,11 +16,13 @@ angular.module("Prometheus.controllers").controller('GraphCtrl', ["$scope", "$ht
       .highlightInput(event);
   };
 
+  // TODO: Set these on graph creation so we don't have to keep doing these
+  // checks
   $scope.graph.legendSetting = $scope.graph.legendSetting || "sometimes";
   $scope.graph.interpolationMethod = $scope.graph.interpolationMethod || "cardinal";
+  $scope.graph.axes = $scope.graph.axes || [];
 
   $scope.serversById = ServersByIdObject($scope.servers);
-  $scope.graph.axes = [];
   $scope.requestsInFlight = 0;
   $scope.data = null;
 

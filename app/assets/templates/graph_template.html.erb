@@ -83,7 +83,7 @@
           <label>Graph Title:</label>
           <input class="form-control" ng-model="graph.title">
           <br/>
-          <div class="col-xs-4">
+          <div class="col-xs-6">
             <label>Chart Type:</label>
             <div class="radio">
               <label class="graph_settings_image lines"><input type="radio" ng-model="graph.stacked" ng-value="false"> lines</label>
@@ -92,7 +92,7 @@
               <label class="graph_settings_image stacked"><input type="radio" ng-model="graph.stacked" ng-value="true"> stacked</label>
             </div>
           </div>
-          <div class="col-xs-4">
+          <div class="col-xs-6">
             <label>Interpolation:</label>
             <div class="radio">
               <label class="graph_settings_image cardinal"><input type="radio" ng-model="graph.interpolationMethod" value="cardinal"> cardinal</label>
@@ -105,13 +105,10 @@
             </div>
           </div>
 
-          <!-- UNCOMMENT WHEN AXES ARE FULLY IMPLEMENTED
-          <hr>
-
-          <div ng-repeat="axis in graph.axes">
+          <div class="col-xs-6" ng-repeat="axis in graph.axes">
             <button class="btn btn-default btn-xs" ng-click="removeAxis($index)"><i class="icon-cross"></i></button>
             <label>Y-Axis {{$index + 1}}</label><br/>
-            <div class="col-lg-4">
+            <div>
               <label>Scale:</label>
               <div class="radio">
                 <label><input type="radio" ng-model="axis.scale" value="linear">linear</label>
@@ -121,7 +118,7 @@
               </div>
             </div>
 
-            <div class="col-lg-4">
+            <div>
               <label>Orientation:</label>
               <div class="radio">
                 <label><input type="radio" ng-model="axis.orientation" value="left">left</label>
@@ -131,7 +128,7 @@
               </div>
             </div>
 
-            <div class="col-lg-4">
+            <div>
               <label>Format:</label>
               <div class="radio">
                 <label><input type="radio" ng-model="axis.format" value="kmbt">KMBT</label>
@@ -144,9 +141,8 @@
             <label>Title<input type="text" class="form-control"></label>
 
             <hr>
+            <button class="btn btn-primary" ng-click="addAxis()">Add Axis</button>
           </div>
-          <button class="btn btn-primary" ng-click="addAxis()">Add Axis</button>
-          -->
         </div>
       </div>
 
