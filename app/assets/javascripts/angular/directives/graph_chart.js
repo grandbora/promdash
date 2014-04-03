@@ -148,7 +148,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         // TODO: Axes are being weird. They are calculated for the range of the
         // series, but we are setting the minimum of the graph to 0 if the min
-        // is greater than 0, thereby causing the legend to be off.
+        // is greater than 0, thereby causing the axis to be off.
         // var parentEl = element[0].parentElement;
         var yAxisLeft = {
           graph: rsGraph,
