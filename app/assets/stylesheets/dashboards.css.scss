@@ -393,3 +393,17 @@ error-message {
   50%  {color: #FF0000;}
   100% {color: #FFFFFF;}
 }
+
+.y_axis {
+  position: absolute;
+  top: 0;
+  height: 300px;
+  width: 30px;
+  z-index: 1;
+  &.left {
+    left: 0;
+  }
+  &.right {
+    right: 0;
+  }
+}

@@ -118,27 +118,27 @@
               </div>
             </div>
 
-            <div>
-              <label>Orientation:</label>
-              <div class="radio">
-                <label><input type="radio" ng-model="axis.orientation" value="left">left</label>
-              </div>
-              <div class="radio">
-                <label><input type="radio" ng-model="axis.orientation" value="right">right</label>
-              </div>
-            </div>
+            <!-- <div> -->
+            <!--   <label>Orientation:</label> -->
+            <!--   <div class="radio"> -->
+            <!--     <label><input type="radio" ng&#45;model="axis.orientation" value="left">left</label> -->
+            <!--   </div> -->
+            <!--   <div class="radio"> -->
+            <!--     <label><input type="radio" ng&#45;model="axis.orientation" value="right">right</label> -->
+            <!--   </div> -->
+            <!-- </div> -->
 
-            <div>
-              <label>Format:</label>
-              <div class="radio">
-                <label><input type="radio" ng-model="axis.format" value="kmbt">KMBT</label>
-              </div>
-              <div class="radio">
-                <label><input type="radio" ng-model="axis.format" value="num">numeric</label>
-              </div>
-            </div>
+            <!-- <div> -->
+            <!--   <label>Format:</label> -->
+            <!--   <div class="radio"> -->
+            <!--     <label><input type="radio" ng&#45;model="axis.format" value="kmbt">KMBT</label> -->
+            <!--   </div> -->
+            <!--   <div class="radio"> -->
+            <!--     <label><input type="radio" ng&#45;model="axis.format" value="num">numeric</label> -->
+            <!--   </div> -->
+            <!-- </div> -->
 
-            <label>Title<input type="text" class="form-control"></label>
+            <!-- <label>Title<input type="text" class="form&#45;control"></label> -->
 
             <hr>
             <button class="btn btn-primary" ng-click="addAxis()">Add Axis</button>
@@ -199,9 +199,11 @@
     </div>
 
     <div ng-click="showTab = null">
+      <div class="y_axis left"></div>
       <div class="graph_chart" graph-chart graph-settings="graph" graph-data="data" aspect-ratio="aspectRatio" vars="vars">
         <div class="legend"></div>
       </div>
+      <div class="y_axis right"></div>
     </div>
   </div>
 </span>

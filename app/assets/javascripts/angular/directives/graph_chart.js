@@ -146,15 +146,26 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         });
         xAxis.render();
 
-        var yAxisObj = {
+        // TODO: Axes are being weird. They are calculated for the range of the
+        // series, but we are setting the minimum of the graph to 0 if the min
+        // is greater than 0, thereby causing the legend to be off.
+        // var parentEl = element[0].parentElement;
+        var yAxisLeft = {
           graph: rsGraph,
-          orientation: 'left',
+          orientation: 'right',
           tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-          element: document.getElementById('yaxis'),
+          // element: parentEl.querySelector('.y_axis.left'),
           scale: logScale
         };
-        // TODO: yAxis on left and right for different scales
-        // yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisObj);
+        yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisLeft);
+        // var yAxisRight = {
+        //   graph: rsGraph,
+        //   orientation: 'left',
+        //   tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        //   // element: parentEl.querySelector('.y_axis.right'),
+        //   scale: logScale
+        // };
+        // yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisRight);
         // yAxis.render();
 
         var hoverDetail = new Rickshaw.Graph.HoverDetail({
