@@ -72,7 +72,28 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           return;
         }
 
-        var series = RickshawDataTransformer(scope.graphData, scope.graphSettings.stacked);
+        var series = RickshawDataTransformer(scope.graphData, scope.graphSettings.stacked, scope.graphSettings.axes);
+
+        var seriesYLimitFn = calculateBound(series);
+        yMinForLog = seriesYLimitFn(Math.min)
+        yMin = yMinForLog > 0 ? 0 : yMinForLog;
+        yMax = seriesYLimitFn(Math.max)
+
+        // TODO: Put this into its own service
+        var logScale = d3.scale.log().domain([yMinForLog, yMax]);
+        var linearScale = d3.scale.linear().domain([yMin, yMax]).range(logScale.range());
+        series.forEach(function(s) {
+          var scaleSetting = scope.graphSettings.axes.filter(function(a) {
+            return a.id === s.axis_id
+          })[0].scale;
+
+          delete s.axis_id
+          if (scaleSetting === "log") {
+            s.scale = logScale;
+          } else {
+            s.scale = linearScale;
+          }
+        });
         if (rsGraph) {
           refreshGraph(rsGraph, series);
           return;
@@ -87,7 +108,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         rsGraph = new Rickshaw.Graph({
           element: element[0],
-          min: yMin(series),
+          min: yMin,
           interpolation: scope.graphSettings.interpolationMethod,
           renderer: (scope.graphSettings.stacked ? 'stack' : 'line'),
           series: series
@@ -119,18 +140,22 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         rsGraph.configure({height: calculateGraphHeight($legend)});
         rsGraph.series.legend = legend;
-        rsGraph.render();
 
         var xAxis = new Rickshaw.Graph.Axis.Time({
           graph: rsGraph
         });
         xAxis.render();
 
-        var yAxis = new Rickshaw.Graph.Axis.Y({
+        var yAxisObj = {
+          graph: rsGraph,
+          orientation: 'left',
           tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-          graph: rsGraph
-        });
-        yAxis.render();
+          element: document.getElementById('yaxis'),
+          scale: logScale
+        };
+        // TODO: yAxis on left and right for different scales
+        // yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisObj);
+        // yAxis.render();
 
         var hoverDetail = new Rickshaw.Graph.HoverDetail({
           graph: rsGraph,
@@ -148,21 +173,24 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
             hoverContent.style.top = parseFloat(hoverContent.style.top) + elementHeight($legend) + "px";
           },
         });
+        rsGraph.render();
       }
 
       function elementHeight($element) {
         return $element.outerHeight(true);
       }
 
-      function yMin(series) {
+      function calculateBound(series) {
         var yValues = series.map(function(s) {
           return s.data.map(function(d) {
             return d.y;
           });
         });
         var flatYValues = d3.merge(yValues);
-        var yMin = Math.min.apply(Math, flatYValues);
-        return yMin > 0 ? 0 : yMin;
+        return function(bound) {
+          var limit = bound.apply(Math, flatYValues);
+          return limit;
+        }
       }
 
       function setLegendPresence(series) {
