@@ -10,6 +10,9 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
       var rsGraph = null;
       var legend = null;
       var seriesToggle = null;
+      yAxis = null;
+      logScale = null;
+      linearScale = null;
 
       function formatTimeSeries(series) {
         series.forEach(function(s) {
@@ -46,6 +49,20 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         graph.series.load({items: series});
 
+        // TEMP DUPLICATED MULTI-AXIS STUFF
+        // Check out yaxis.vis, try to empty that for re-rendering
+        //
+        // Also check out yaxis._renderHeight, that might be able to fix the
+        // issue where the yaxis is rendering too low because we are
+        // artificially setting the minimum at 0 when it really isn't that low.
+        var leftAxisSettings = scope.graphSettings.axes[0];
+        var rightAxisSettings = scope.graphSettings.axes[1];
+
+        var leftScale = leftAxisSettings.scale === "log" ? logScale : linearScale;
+        var leftTickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+        debugger
+        yAxis.scale = leftScale
+
         // Series toggle is leaking.
         (seriesToggle || {}).legend = null;
         seriesToggle = null;
@@ -75,17 +92,18 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         var series = RickshawDataTransformer(scope.graphData, scope.graphSettings.stacked, scope.graphSettings.axes);
 
         var seriesYLimitFn = calculateBound(series);
-        yMinForLog = seriesYLimitFn(Math.min)
-        yMin = yMinForLog > 0 ? 0 : yMinForLog;
-        yMax = seriesYLimitFn(Math.max)
+        var yMinForLog = seriesYLimitFn(Math.min);
+        var yMin = yMinForLog > 0 ? 0 : yMinForLog;
+        var yMax = seriesYLimitFn(Math.max);
 
         // TODO: Put this into its own service
-        var logScale = d3.scale.log().domain([yMinForLog, yMax]);
-        var linearScale = d3.scale.linear().domain([yMin, yMax]).range(logScale.range());
+        logScale = d3.scale.log().domain([yMinForLog, yMax]);
+        linearScale = d3.scale.linear().domain([yMin, yMax]).range(logScale.range());
         series.forEach(function(s) {
-          var scaleSetting = scope.graphSettings.axes.filter(function(a) {
+          var matchingAxis = scope.graphSettings.axes.filter(function(a) {
             return a.id === s.axis_id
-          })[0].scale;
+          })[0];
+          var scaleSetting = (matchingAxis || {}).scale;
 
           delete s.axis_id
           if (scaleSetting === "log") {
@@ -94,6 +112,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
             s.scale = linearScale;
           }
         });
+
         if (rsGraph) {
           refreshGraph(rsGraph, series);
           return;
@@ -150,12 +169,21 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         // series, but we are setting the minimum of the graph to 0 if the min
         // is greater than 0, thereby causing the axis to be off.
         // var parentEl = element[0].parentElement;
+        // have this work off scope.axes.first
+        // this left one is always the left axis
+        // and the second is always the right
+        var leftAxisSettings = scope.graphSettings.axes[0];
+        var rightAxisSettings = scope.graphSettings.axes[1];
+
+        var leftScale = leftAxisSettings.scale === "log" ? logScale : linearScale;
+        var leftTickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
         var yAxisLeft = {
           graph: rsGraph,
           orientation: 'right',
-          tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+          tickFormat: leftTickFormat,
           // element: parentEl.querySelector('.y_axis.left'),
-          scale: logScale
+          scale: leftScale
+          // scale: linearScale
         };
         yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisLeft);
         // var yAxisRight = {
