@@ -1,7 +1,7 @@
 angular.module("Prometheus.services").factory('VariableInterpolator', function() {
   var re = /{{.+}}/g;
   var re1 = /{{\s?(\w+)\s?}}/g;
-  var re2 = new RegExp("{{\\s?\\w+\\s?(\\|\\s?\\w+(:('|\")?[a-zA-Z(\\[?=:!^\\])]+('|\")?){0,}\\s?){0,}}}", "g");
+  var re2 = /{{\s?\w+\s?(\|\s?\w+(:('|\")?[a-zA-Z(\[?=:!^\])]+('|\")?){0,}\s?){1,}}}/g;
 
   return function(str, varValues, scope) {
     function knownFilters() {
