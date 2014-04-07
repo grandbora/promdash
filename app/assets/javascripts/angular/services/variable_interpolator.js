@@ -1,4 +1,4 @@
-angular.module("Prometheus.services").factory('VariableInterpolator', function() {
+angular.module("Prometheus.services").factory('VariableInterpolator', ["$rootScope", function($rootScope) {
   var re = /{{.+}}/g;
   var re1 = /{{\s?(\w+)\s?}}/g;
   var re2 = /{{\s?\w+\s?(\|\s?\w+(:('|\")?([\sa-zA-Z(\[?=:!^\])]+)?('|\")?){0,}\s?){1,}}}/g;
@@ -6,7 +6,7 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     return ["regex", "toPercent", "toPercentile", "hostname"];
   }
 
-  return function(str, varValues, scope) {
+  return function(str, varValues) {
     var vars = str.match(re);
     if (!vars) {
       return str;
@@ -16,7 +16,8 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     // Deal with filtered variables.
     var pipedVars = vars.match(re2);
     var pipeObj = {};
-    if (scope && pipedVars) {
+    if (pipedVars) {
+      var scope = $rootScope.$new(true);
       pipedVars.forEach(function(v) { pipeObj[v] = null; });
       pipedVars.forEach(function(match) {
         var rep = match.replace(/\s+/g, '').replace(/{|}/g, '').split("|");
@@ -28,9 +29,9 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
           var result = scope.$eval(rep.join("|"));
           pipeObj[match] = result;
           // Remove from scope.
-          scope[rep[0]] = undefined;
         }
       });
+      scope.$destroy();
     }
 
     // Replace the filtered variables.
@@ -47,5 +48,5 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     }
     return str;
   };
-});
+}]);
 
