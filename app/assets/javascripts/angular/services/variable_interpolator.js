@@ -31,7 +31,7 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
 
         // Set on scope so we can $eval.
         scope[rep[0]] = varValues[rep[0]]
-        // check to see if rep[1] is in list of function
+        // Check to see if rep[1] is in the list of known filters.
         if (knownFilters().indexOf(rep[1].split(":")[0]) > -1) {
           var result = scope.$eval(rep.join("|"));
           pipeObj[match] = result;
