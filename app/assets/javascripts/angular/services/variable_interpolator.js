@@ -50,7 +50,7 @@ angular.module("Prometheus.services").factory('VariableInterpolator', function()
     var singleMatches = vars.match(re1);
     if ((singleMatches || []).length) {
       for (var i = 0; i < singleMatches.length; i++) {
-        str = str.replace(singleMatches[i], varValues[singleMatches[i].replace(/{|}/g, '')]);
+        str = str.replace(singleMatches[i], varValues[singleMatches[i].replace(/{|}|\s/g, '')]);
       }
     }
     return str;
