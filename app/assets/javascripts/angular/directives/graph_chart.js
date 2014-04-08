@@ -59,6 +59,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         });
 
         graph.configure({
+          dotSize: 2,
           interpolation: scope.graphSettings.interpolationMethod,
           height: calculateGraphHeight($el.find(".legend"))
         });
@@ -162,7 +163,10 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         //   legend: legend
         // });
 
-        rsGraph.configure({height: calculateGraphHeight($legend)});
+        rsGraph.configure({
+          dotSize: 2,
+          height: calculateGraphHeight($legend)
+        });
         rsGraph.series.legend = legend;
 
         var xAxis = new Rickshaw.Graph.Axis.Time({
