@@ -81,15 +81,22 @@ angular.module("Prometheus.controllers").controller('GraphCtrl', ["$scope", "$ht
   };
 
   $scope.removeAxis = function(idx) {
-    var len = $scope.graph.axes.length;
-    if (len == 1) {
+    var axes = $scope.graph.axes;
+    var len = axes.length;
+    if (len === 1) {
       alert('Cannot remove last axis');
       return;
     }
 
-    $scope.graph.axes.splice(idx, 1);
+    $scope.graph.expressions.forEach(function(expr) {
+      if (expr.axis_id === axes[idx].id) {
+        expr.axis_id = axes[0].id
+      }
+    });
+
+    axes.splice(idx, 1);
     for (var i = 0; i < len-1; i++) {
-      $scope.graph.axes[i]['id'] = i + 1;
+      axes[i]['id'] = i + 1;
     }
   };
 
