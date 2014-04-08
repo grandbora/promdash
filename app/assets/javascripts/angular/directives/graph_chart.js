@@ -11,8 +11,8 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
       var legend = null;
       var seriesToggle = null;
       yAxis = null;
-      logScale = null;
-      linearScale = null;
+      var logScale = null;
+      var linearScale = null;
 
       function formatTimeSeries(series) {
         series.forEach(function(s) {
@@ -49,20 +49,6 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         graph.series.load({items: series});
 
-        // TEMP DUPLICATED MULTI-AXIS STUFF
-        // Check out yaxis.vis, try to empty that for re-rendering
-        //
-        // Also check out yaxis._renderHeight, that might be able to fix the
-        // issue where the yaxis is rendering too low because we are
-        // artificially setting the minimum at 0 when it really isn't that low.
-        var leftAxisSettings = scope.graphSettings.axes[0];
-        var rightAxisSettings = scope.graphSettings.axes[1];
-
-        var leftScale = leftAxisSettings.scale === "log" ? logScale : linearScale;
-        var leftTickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
-        debugger
-        yAxis.scale = leftScale
-
         // Series toggle is leaking.
         (seriesToggle || {}).legend = null;
         seriesToggle = null;
@@ -76,6 +62,15 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           interpolation: scope.graphSettings.interpolationMethod,
           height: calculateGraphHeight($el.find(".legend"))
         });
+
+        // TEMP DUPLICATED MULTI-AXIS STUFF
+        var leftAxisSettings = scope.graphSettings.axes[0];
+        var rightAxisSettings = scope.graphSettings.axes[1];
+
+        var leftScale = leftAxisSettings.scale === "log" ? logScale : linearScale;
+        var leftTickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+        yAxis.scale = leftScale
+        yAxis.tickFormat = leftTickFormat
 
         graph.render();
       }
@@ -181,9 +176,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           graph: rsGraph,
           orientation: 'right',
           tickFormat: leftTickFormat,
-          // element: parentEl.querySelector('.y_axis.left'),
           scale: leftScale
-          // scale: linearScale
         };
         yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisLeft);
         // var yAxisRight = {
