@@ -10,7 +10,8 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
       var rsGraph = null;
       var legend = null;
       var seriesToggle = null;
-      yAxis = null;
+      var yAxis = null;
+      var yAxis2 = null;
       var logScale = null;
       var linearScale = null;
 
@@ -63,14 +64,24 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           height: calculateGraphHeight($el.find(".legend"))
         });
 
-        // TEMP DUPLICATED MULTI-AXIS STUFF
         var leftAxisSettings = scope.graphSettings.axes[0];
         var rightAxisSettings = scope.graphSettings.axes[1];
 
-        var leftScale = leftAxisSettings.scale === "log" ? logScale : linearScale;
-        var leftTickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
-        yAxis.scale = leftScale
-        yAxis.tickFormat = leftTickFormat
+        if (yAxis) {
+          var scale = leftAxisSettings.scale === "log" ? logScale : linearScale;
+          var tickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+          yAxis.scale = scale
+          yAxis.tickFormat = tickFormat
+        }
+        // Don't re-render right Y-axis if it was removed.
+        if (scope.graphSettings.axes.length > 1 && yAxis2) {
+          var scale = rightAxisSettings.scale === "log" ? logScale : linearScale;
+          var tickFormat = rightAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+          yAxis2.scale = scale
+          yAxis2.tickFormat = tickFormat
+          yAxis2.height = rsGraph.height
+          yAxis2.width = rsGraph.width
+        }
 
         graph.render();
       }
@@ -158,7 +169,6 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         var xAxis = new Rickshaw.Graph.Axis.Time({
           graph: rsGraph
         });
-        xAxis.render();
 
         // TODO: Axes are being weird. They are calculated for the range of the
         // series, but we are setting the minimum of the graph to 0 if the min
@@ -172,6 +182,8 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         var leftScale = leftAxisSettings.scale === "log" ? logScale : linearScale;
         var leftTickFormat = leftAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+        var rightScale, rightTickFormat;
+
         var yAxisLeft = {
           graph: rsGraph,
           orientation: 'right',
@@ -179,15 +191,22 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           scale: leftScale
         };
         yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisLeft);
-        // var yAxisRight = {
-        //   graph: rsGraph,
-        //   orientation: 'left',
-        //   tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
-        //   // element: parentEl.querySelector('.y_axis.right'),
-        //   scale: logScale
-        // };
-        // yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisRight);
-        // yAxis.render();
+
+        if (rightAxisSettings) {
+          rightScale = rightAxisSettings.scale === "log" ? logScale : linearScale;
+          rightTickFormat = rightAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+
+          var yAxisRight = {
+            graph: rsGraph,
+            orientation: 'left',
+            tickFormat: rightTickFormat,
+            scale: rightScale
+          };
+          yAxis2 = new Rickshaw.Graph.Axis.Y.Scaled(yAxisRight);
+          yAxis2.height = rsGraph.height
+          yAxis2.width = rsGraph.width
+          yAxis2.berthRate = 0
+        }
 
         var hoverDetail = new Rickshaw.Graph.HoverDetail({
           graph: rsGraph,
