@@ -59,7 +59,6 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         });
 
         graph.configure({
-          renderer: scope.graphSettings.stacked ? 'stack' : 'line',
           interpolation: scope.graphSettings.interpolationMethod,
           height: calculateGraphHeight($el.find(".legend"))
         });
@@ -95,27 +94,27 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           return;
         }
 
-        var series = RickshawDataTransformer(scope.graphData, scope.graphSettings.stacked, scope.graphSettings.axes);
+        var series = RickshawDataTransformer(scope.graphData, scope.graphSettings.axes);
 
+        // TODO: Put this into its own service
         var seriesYLimitFn = calculateBound(series);
         var yMinForLog = seriesYLimitFn(Math.min);
         var yMin = yMinForLog > 0 ? 0 : yMinForLog;
         var yMax = seriesYLimitFn(Math.max);
 
-        // TODO: Put this into its own service
         logScale = d3.scale.log().domain([yMinForLog, yMax]);
         linearScale = d3.scale.linear().domain([yMin, yMax]).range(logScale.range());
         series.forEach(function(s) {
           var matchingAxis = scope.graphSettings.axes.filter(function(a) {
             return a.id === s.axis_id
           })[0];
-          var scaleSetting = (matchingAxis || {}).scale;
+          matchingAxis = matchingAxis || {};
 
           delete s.axis_id
-          if (scaleSetting === "log") {
-            s.scale = logScale;
-          } else {
-            s.scale = linearScale;
+          s.scale = matchingAxis.scale === "log" ? logScale : linearScale;
+
+          if (matchingAxis.renderer) {
+            s.renderer = matchingAxis.renderer;
           }
         });
 
@@ -133,9 +132,9 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         rsGraph = new Rickshaw.Graph({
           element: element[0],
+          renderer: 'multi',
           min: yMin,
           interpolation: scope.graphSettings.interpolationMethod,
-          renderer: (scope.graphSettings.stacked ? 'stack' : 'line'),
           series: series
         });
 
@@ -170,13 +169,6 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           graph: rsGraph
         });
 
-        // TODO: Axes are being weird. They are calculated for the range of the
-        // series, but we are setting the minimum of the graph to 0 if the min
-        // is greater than 0, thereby causing the axis to be off.
-        // var parentEl = element[0].parentElement;
-        // have this work off scope.axes.first
-        // this left one is always the left axis
-        // and the second is always the right
         var leftAxisSettings = scope.graphSettings.axes[0];
         var rightAxisSettings = scope.graphSettings.axes[1];
 

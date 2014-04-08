@@ -84,15 +84,6 @@
           <input class="form-control" ng-model="graph.title">
           <br/>
           <div class="col-xs-6">
-            <label>Chart Type:</label>
-            <div class="radio">
-              <label class="graph_settings_image lines"><input type="radio" ng-model="graph.stacked" ng-value="false"> lines</label>
-            </div>
-            <div class="radio">
-              <label class="graph_settings_image stacked"><input type="radio" ng-model="graph.stacked" ng-value="true"> stacked</label>
-            </div>
-          </div>
-          <div class="col-xs-6">
             <label>Interpolation:</label>
             <div class="radio">
               <label class="graph_settings_image cardinal"><input type="radio" ng-model="graph.interpolationMethod" value="cardinal"> cardinal</label>
@@ -108,6 +99,16 @@
           <div class="col-xs-6" ng-repeat="axis in graph.axes">
             <button class="btn btn-default btn-xs" ng-click="removeAxis($index)"><i class="icon-cross"></i></button>
             <label>Y-Axis {{$index + 1}}</label><br/>
+            <div>
+              <label>Type:</label>
+              <div class="radio">
+                <label class="graph_settings_image lines"><input type="radio" ng-model="axis.renderer" value="line"> lines</label>
+              </div>
+              <div class="radio">
+                <label class="graph_settings_image stacked"><input type="radio" ng-model="axis.renderer" value="stack"> stacked</label>
+              </div>
+            </div>
+
             <div>
               <label>Scale:</label>
               <div class="radio">
