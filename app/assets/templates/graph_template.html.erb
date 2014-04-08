@@ -141,8 +141,8 @@
             <!-- <label>Title<input type="text" class="form&#45;control"></label> -->
 
             <hr>
-            <button class="btn btn-primary" ng-click="addAxis()">Add Axis</button>
           </div>
+          <button class="btn btn-primary" ng-hide="graph.axes.length > 1" ng-click="addAxis()">Add Axis</button>
         </div>
       </div>
 
