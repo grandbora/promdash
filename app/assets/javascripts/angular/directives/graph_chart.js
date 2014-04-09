@@ -76,9 +76,12 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
 
         // Don't re-render right Y-axis if it was removed.
         var removeY2 = false;
-        if (scope.graphSettings.axes.length > 1 && yAxis2) {
+        if (scope.graphSettings.axes.length > 1) {
           var scale = rightAxisSettings.scale === "log" ? logScale : linearScale;
           var tickFormat = rightAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+          if (!yAxis2) {
+            yAxis2 = createYAxis2(graph, tickFormat, scale);
+          }
           yAxis2.scale = scale
           yAxis2.tickFormat = tickFormat
           yAxis2.height = rsGraph.height
@@ -90,6 +93,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         graph.render();
         if (removeY2) {
           d3.selectAll(yAxis2.vis[0][0].querySelectorAll('.y_ticks[transform]')).remove();
+          yAxis2 = null;
         }
       }
 
@@ -193,22 +197,12 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           tickFormat: leftTickFormat,
           scale: leftScale
         };
-        yAxis = new Rickshaw.Graph.Axis.Y.Scaled(yAxisLeft);
+        yAxis = createYAxis(yAxisLeft);
 
         if (rightAxisSettings) {
-          rightScale = rightAxisSettings.scale === "log" ? logScale : linearScale;
-          rightTickFormat = rightAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
-
-          var yAxisRight = {
-            graph: rsGraph,
-            orientation: 'left',
-            tickFormat: rightTickFormat,
-            scale: rightScale
-          };
-          yAxis2 = new Rickshaw.Graph.Axis.Y.Scaled(yAxisRight);
-          yAxis2.height = rsGraph.height
-          yAxis2.width = rsGraph.width
-          yAxis2.berthRate = 0
+          var scale = rightAxisSettings.scale === "log" ? logScale : linearScale;
+          var tickFormat = rightAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
+          yAxis2 = createYAxis2(rsGraph, tickFormat, scale);
         }
 
         var hoverDetail = new Rickshaw.Graph.HoverDetail({
@@ -228,6 +222,24 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           },
         });
         rsGraph.render();
+      }
+
+      function createYAxis2(graph, tickFormat, scale) {
+        var yAxisRight = {
+          graph: graph,
+          orientation: 'left',
+          tickFormat: tickFormat,
+          scale: scale
+        };
+        yAxis2 = createYAxis(yAxisRight);
+        yAxis2.height = graph.height
+        yAxis2.width = graph.width
+        yAxis2.berthRate = 0
+        return yAxis2;
+      }
+
+      function createYAxis(config) {
+        return new Rickshaw.Graph.Axis.Y.Scaled(config);
       }
 
       function elementHeight($element) {
