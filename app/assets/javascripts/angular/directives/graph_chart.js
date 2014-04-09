@@ -106,10 +106,10 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         logScale = d3.scale.log().domain([yMinForLog, yMax]);
         linearScale = d3.scale.linear().domain([yMin, yMax]).range(logScale.range());
         series.forEach(function(s) {
-          var matchingAxis = scope.graphSettings.axes.filter(function(a) {
+          var axes = scope.graphSettings.axes;
+          var matchingAxis = axes.filter(function(a) {
             return a.id === s.axis_id
-          })[0];
-          matchingAxis = matchingAxis || {};
+          })[0] || axes[0];
 
           delete s.axis_id
           s.scale = matchingAxis.scale === "log" ? logScale : linearScale;
