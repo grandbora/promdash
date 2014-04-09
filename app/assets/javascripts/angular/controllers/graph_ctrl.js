@@ -21,6 +21,9 @@ angular.module("Prometheus.controllers").controller('GraphCtrl', ["$scope", "$ht
   $scope.graph.legendSetting = $scope.graph.legendSetting || "sometimes";
   $scope.graph.interpolationMethod = $scope.graph.interpolationMethod || "cardinal";
   $scope.graph.axes = $scope.graph.axes || [];
+  $scope.graph.axes.forEach(function(axis) {
+    axis.renderer = axis.renderer || "line";
+  });
 
   $scope.serversById = ServersByIdObject($scope.servers);
   $scope.requestsInFlight = 0;
