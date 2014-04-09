@@ -113,6 +113,11 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         var yMinForLog = seriesYLimitFn(Math.min);
         var yMin = yMinForLog > 0 ? 0 : yMinForLog;
         var yMax = seriesYLimitFn(Math.max);
+        var yMinForGraph = yMin;
+        if ([yMin, yMax].filter(function(bound) { return bound < 0; }).length == 2) {
+          // Both numbers are negative, so we need to set yMin to 0.
+          yMinForGraph = 0;
+        }
 
         logScale = d3.scale.log().domain([yMinForLog, yMax]);
         linearScale = d3.scale.linear().domain([yMin, yMax]).range(logScale.range());
@@ -145,7 +150,7 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
         rsGraph = new Rickshaw.Graph({
           element: element[0],
           renderer: 'multi',
-          min: yMin,
+          min: yMinForGraph,
           interpolation: scope.graphSettings.interpolationMethod,
           series: series
         });
