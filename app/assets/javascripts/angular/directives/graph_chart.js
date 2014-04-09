@@ -73,7 +73,9 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           yAxis.scale = scale
           yAxis.tickFormat = tickFormat
         }
+
         // Don't re-render right Y-axis if it was removed.
+        var removeY2 = false;
         if (scope.graphSettings.axes.length > 1 && yAxis2) {
           var scale = rightAxisSettings.scale === "log" ? logScale : linearScale;
           var tickFormat = rightAxisSettings.format === "kmbt" ? Rickshaw.Fixtures.Number.formatKMBT : null;
@@ -81,9 +83,14 @@ angular.module("Prometheus.directives").directive('graphChart', ["$location", "W
           yAxis2.tickFormat = tickFormat
           yAxis2.height = rsGraph.height
           yAxis2.width = rsGraph.width
+        } else if (yAxis2) {
+          removeY2 = true
         }
 
         graph.render();
+        if (removeY2) {
+          d3.selectAll(yAxis2.vis[0][0].querySelectorAll('.y_ticks[transform]')).remove();
+        }
       }
 
       function redrawGraph() {
